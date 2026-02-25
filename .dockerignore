@@ -1,0 +1,11 @@
+.git
+.env
+venv
+__pycache__
+*.pyc
+ig_session.json
+src/output_video.mp4
+src/output_video.mp4.jpg
+.gemini
+.agent
+.env

@@ -6,3 +6,9 @@ pyvenv.cfg
 .DS_Store
 .env
 __pycache__/
+venv/
+ig_session.json
+src/output_video.mp4*
+*.pyc
+.idea/
+.vscode/
