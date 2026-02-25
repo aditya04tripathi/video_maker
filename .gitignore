@@ -12,3 +12,6 @@ src/output_video.mp4*
 *.pyc
 .idea/
 .vscode/
+
+**/*.mp4
+**/*.jpg
