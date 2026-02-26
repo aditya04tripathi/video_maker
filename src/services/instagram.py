@@ -325,6 +325,22 @@ class InstagramGraphClient:
             response = requests.post(url, params=params, data=payload)
             if not response.ok:
                 self._handle_api_error(response, "media publishing")
+
+                # Detect known Meta API bug (Feb 2026): media_publish treats
+                # REELS containers as VIDEO carousel items
+                try:
+                    error_data = response.json().get("error", {})
+                    if error_data.get("error_subcode") == 2207089:
+                        Log.error(
+                            "KNOWN META API BUG: Instagram media_publish is "
+                            "incorrectly treating REELS containers as VIDEO "
+                            "carousel items. This is a server-side issue with "
+                            "no available workaround. Monitor: "
+                            "https://developers.facebook.com/community/"
+                        )
+                except Exception:
+                    pass
+
             response.raise_for_status()
             media_id = response.json().get("id")
             Log.info(f"Successfully published media: {media_id}")
