@@ -14,5 +14,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# Run the scheduling script directly
-CMD ["python", "scripts/scheduled_reel_post.py"]
+CMD ["celery", "-A", "src.celery_app:celery_app", "worker", "--loglevel=info", "--concurrency=1"]

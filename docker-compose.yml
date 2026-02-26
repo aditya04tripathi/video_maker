@@ -1,18 +1,56 @@
-version: "3.9"
-
 services:
-  reel-automation:
+  redis:
+    image: redis:7-alpine
+    container_name: video-maker-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  celery-worker:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: video-maker-bot
+    container_name: video-maker-worker
+    command: >
+      celery -A src.celery_app:celery_app worker
+      --loglevel=info
+      --concurrency=1
     env_file:
       - .env
+    environment:
+      - REDIS_URL=redis://redis:6379/0
     volumes:
       - ./logs:/app/logs
       - ./src:/app/src
     depends_on:
-      - minio
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_started
+
+  celery-beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: video-maker-beat
+    command: >
+      celery -A src.celery_app:celery_app beat
+      --loglevel=info
+    env_file:
+      - .env
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+    volumes:
+      - ./logs:/app/logs
+    depends_on:
+      redis:
+        condition: service_healthy
 
   minio:
     image: minio/minio
@@ -28,4 +66,5 @@ services:
       - minio_data:/data
 
 volumes:
+  redis_data:
   minio_data:
