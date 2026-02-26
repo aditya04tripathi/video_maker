@@ -47,11 +47,12 @@ class InstagramGraphClient:
 
             url = f"{self.base_url}/{self.user_id}/media"
 
+            # Graph API: access_token as query param, media params as form data
+            params = {"access_token": self.access_token}
             payload = {
                 "media_type": "REELS",
                 "video_url": video_url,
                 "caption": caption,
-                "access_token": self.access_token,
                 "share_to_feed": "true",
             }
 
@@ -68,7 +69,8 @@ class InstagramGraphClient:
                     Log.info(f"Setting cover image from: {cover_url}")
                     payload["cover_url"] = cover_url
 
-            response = requests.post(url, data=payload)
+            Log.info(f"Container creation payload: media_type={payload['media_type']}")
+            response = requests.post(url, params=params, data=payload)
 
             if not response.ok:
                 self._handle_api_error(response, "URL upload initialization")
@@ -93,13 +95,13 @@ class InstagramGraphClient:
             Log.info("Initializing Image upload session...")
             url = f"{self.base_url}/{self.user_id}/media"
 
+            params = {"access_token": self.access_token}
             payload = {
                 "image_url": image_url,
                 "caption": caption,
-                "access_token": self.access_token,
             }
 
-            response = requests.post(url, data=payload)
+            response = requests.post(url, params=params, data=payload)
 
             if not response.ok:
                 self._handle_api_error(response, "Image upload initialization")
@@ -313,11 +315,14 @@ class InstagramGraphClient:
     def publish_media(self, container_id: str) -> str:
         """Publish the media container"""
         url = f"{self.base_url}/{self.user_id}/media_publish"
-        payload = {"creation_id": container_id, "access_token": self.access_token}
+
+        # Graph API: access_token as query param, creation_id as form data
+        params = {"access_token": self.access_token}
+        payload = {"creation_id": container_id}
 
         try:
             Log.info(f"Publishing container: {container_id}")
-            response = requests.post(url, data=payload)
+            response = requests.post(url, params=params, data=payload)
             if not response.ok:
                 self._handle_api_error(response, "media publishing")
             response.raise_for_status()
