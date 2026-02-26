@@ -78,7 +78,10 @@ def create_celery_app() -> Celery:
     app.conf.enable_utc = True
 
     # --- Task Discovery ---
-    app.autodiscover_tasks(["src.tasks"])
+    # Explicit include instead of autodiscover — autodiscover expects a
+    # module named 'tasks.py' inside each listed package, but our task
+    # module is 'reel_upload.py'.
+    app.conf.include = ["src.tasks.reel_upload"]
 
     # --- Beat Schedule ---
     cron_kwargs = _parse_cron_str(settings.cron_str)
