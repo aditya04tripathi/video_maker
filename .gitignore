@@ -15,3 +15,5 @@ src/output_video.mp4*
 
 **/*.mp4
 **/*.jpg
+src/output_video.mp4
+src/output_video.mp4.jpg

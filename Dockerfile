@@ -14,8 +14,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-RUN groupadd -r celery && useradd -r -g celery -d /app celery \
-    && chown -R celery:celery /app
-USER celery
+RUN groupadd -r runner && useradd -r -g runner -d /app runner \
+    && chown -R runner:runner /app
+USER runner
 
-CMD ["celery", "-A", "src.celery_app:celery_app", "worker", "--loglevel=info", "--concurrency=1"]
+CMD ["python", "-u", "scripts/scheduled_reel_post.py"]

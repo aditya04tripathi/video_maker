@@ -24,10 +24,6 @@ class Settings(BaseSettings):
 
     groq_api_key: str = Field(alias="GROQ_API_KEY", default="")
 
-    # Celery / Scheduling
-    redis_url: str = Field(alias="REDIS_URL", default="redis://localhost:6379/0")
-    cron_str: str = Field(alias="CRON_STR", default="0 9 * * *")
-
     base_dir: Path = Path(__file__).parent.parent.parent
     src_dir: Path = base_dir / "src"
 
