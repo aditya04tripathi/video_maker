@@ -54,7 +54,7 @@ def main():
             Log.info(f"Container status ({i+1}/30): {status}")
             if status == "FINISHED":
                 break
-            time.sleep(10)
+            time.sleep(20)
 
         Log.info(f"Media container created (ID: {container_id}). Waiting for processing...")
         media_id = ig_client.publish_media(container_id)

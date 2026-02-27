@@ -141,6 +141,7 @@ def main():
 
         if permalink:
             Log.info(f"SUCCESS: Reel published! Permalink: {permalink}")
+            sys.exit(0)
         else:
             raise Exception("Failed to publish Reel after processing")
 
