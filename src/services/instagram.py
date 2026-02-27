@@ -363,7 +363,7 @@ class InstagramGraphClient:
             Log.error(f"Failed to get permalink for media {media_id}: {e}")
             return None
 
-    def wait_and_publish(self, container_id: str, max_retries=30, delay=10) -> str:
+    def wait_and_publish(self, container_id: str, max_retries=30, delay=15) -> str:
         """
         Polls for container status and publishes when ready.
         Matches the robust polling logic in direct_reel_uploader.py.
