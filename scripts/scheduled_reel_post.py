@@ -20,15 +20,12 @@ def generate_video(quote):
     """Generate a new video with dynamic quote only"""
     Log.info("Starting video generation pipeline...")
 
-    # 1. Prepare Reminder Text for Caption
-    # We offload this from the video to the caption for better SEO
     reminder_body = (
         "You are my everything. "
         "I'm still falling in love with you "
         "and won't stop loving you, ilysm."
     )
 
-    # 2. Add centered quote to template
     success = add_text_to_video(
         input_video_path=settings.template_path,
         output_video_path=settings.output_path,
@@ -59,7 +56,6 @@ def main():
         if args.dry_run:
             Log.info("DRY RUN MODE: Upload and publishing will be skipped.")
 
-        # 1. Generate Romantic Quote and engaging body via Groq
         Log.info("Requesting romantic quote and engaging body from Groq...")
         try:
             generator = GroqQuoteGenerator()
@@ -70,10 +66,8 @@ def main():
             groq_quote = "Every day I love you more than yesterday."
             engaging_caption = None
 
-        # 2. Generate Video with dynamic quote
         reminder_text = generate_video(groq_quote)
 
-        # Log video diagnostics
         try:
             from moviepy.editor import VideoFileClip
             with VideoFileClip(str(settings.output_path)) as clip:
@@ -85,7 +79,6 @@ def main():
         except Exception as de:
             Log.warning(f"Could not log video diagnostics: {de}")
 
-        # 3. Prepare Metadata
         keywords = settings.keywords
         hashtags = settings.hashtags
         caption = SEOManager.generate_caption(
@@ -102,25 +95,20 @@ def main():
             Log.info("DRY RUN COMPLETED SUCCESSFULLY.")
             return
 
-        # 4. Upload to Instagram
         Log.info("Initializing Instagram Graph Client...")
         ig_client = InstagramGraphClient()
 
-        # Prepare for upload (Hosting on MinIO for URL-based upload)
-        # URL-based upload is more stable for larger files and matches direct_reel_uploader behavior
         container_id = None
         storage_client = MinIOClient()
         
         try:
             timestamp = int(time.time())
             
-            # Upload Video
             file_name = f"reel_{timestamp}.mp4"
             Log.info(f"Uploading video to MinIO for public URL: {file_name}")
             if storage_client.upload_file(str(settings.output_path), file_name):
                 video_url = storage_client.get_presigned_url(file_name)
                 
-                # Upload Cover if exists
                 cover_url = None
                 thumbnail_local = f"{settings.output_path}.jpg"
                 if os.path.exists(thumbnail_local):
@@ -128,7 +116,6 @@ def main():
                     if storage_client.upload_file(thumbnail_local, thumbnail_name):
                         cover_url = storage_client.get_presigned_url(thumbnail_name)
                 
-                # Create Container via URL
                 Log.info("Creating Instagram media container via URL...")
                 container_id = ig_client.upload_reel(video_url, caption, cover_url=cover_url)
                 
@@ -138,13 +125,12 @@ def main():
         except Exception as e:
             Log.error(f"URL-based upload preparation failed: {e}")
 
-        # Fallback to Binary Upload only if URL-based fails
         if not container_id:
             Log.warning("URL upload failed or skipped. Attempting Binary Upload fallback...")
             container_id = ig_client.upload_reel_binary(
                 str(settings.output_path),
                 caption,
-                cover_url=None, # Binary upload usually doesn't handle cover URLs as well in this client
+                cover_url=None,
             )
 
         if not container_id:

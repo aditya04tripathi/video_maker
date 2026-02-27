@@ -98,6 +98,7 @@ def _upload_to_instagram(caption: str) -> str:
     Raises:
         RuntimeError: If both upload methods and publishing fail.
     """
+    Log.info("Initializing Instagram Graph Client...")
     ig_client = InstagramGraphClient()
     storage_client = MinIOClient()
     container_id = None
@@ -178,7 +179,8 @@ def upload_reel(self: Task) -> dict:
         Up to 2 retries with 60s delay on transient failures.
     """
     task_id = self.request.id
-    Log.info(f"=== Reel Upload Task Started [task_id={task_id}] ===")
+    Log.info("=== Starting Scheduled Reel Post Job ===")
+    Log.info(f"Task ID: {task_id}")
 
     try:
         # 1. Generate quote
@@ -218,7 +220,7 @@ def upload_reel(self: Task) -> dict:
         }
 
     except Exception as exc:
-        Log.error(f"Reel upload task failed: {exc}")
+        Log.error(f"Job Failed: {exc}")
 
         # Retry on transient failures
         if self.request.retries < self.max_retries:
